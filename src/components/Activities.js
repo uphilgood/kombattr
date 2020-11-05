@@ -66,7 +66,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Orders({ activities }) {
+export default function Activities({ activities }) {
   const classes = useStyles();
   return (
     <React.Fragment>
@@ -82,15 +82,16 @@ export default function Orders({ activities }) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {activities.map((row) => (
-            <TableRow key={row.id}>
-              <TableCell>{row.start_date_local}</TableCell>
-              <TableCell>{row.name}</TableCell>
-              <TableCell>{row.moving_time}</TableCell>
-              <TableCell>{row.average_speed}</TableCell>
-              <TableCell align="right">{row.suffer_score}</TableCell>
-            </TableRow>
-          ))}
+          {!!activities.length &&
+            activities.map((row) => (
+              <TableRow key={row.id}>
+                <TableCell>{row.start_date_local}</TableCell>
+                <TableCell>{row.name}</TableCell>
+                <TableCell>{row.moving_time}</TableCell>
+                <TableCell>{row.average_speed}</TableCell>
+                <TableCell align="right">{row.suffer_score}</TableCell>
+              </TableRow>
+            ))}
         </TableBody>
       </Table>
       <div className={classes.seeMore}>

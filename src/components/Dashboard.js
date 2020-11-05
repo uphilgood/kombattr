@@ -1,27 +1,28 @@
-import React, { useEffect, useState } from "react";
-import clsx from "clsx";
-import { makeStyles } from "@material-ui/core/styles";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import Drawer from "@material-ui/core/Drawer";
-import Box from "@material-ui/core/Box";
 import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import List from "@material-ui/core/List";
-import Typography from "@material-ui/core/Typography";
-import Divider from "@material-ui/core/Divider";
-import IconButton from "@material-ui/core/IconButton";
-import Badge from "@material-ui/core/Badge";
+import Box from "@material-ui/core/Box";
+import Button from "@material-ui/core/Button";
 import Container from "@material-ui/core/Container";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import Divider from "@material-ui/core/Divider";
+import Drawer from "@material-ui/core/Drawer";
 import Grid from "@material-ui/core/Grid";
-import Paper from "@material-ui/core/Paper";
+import IconButton from "@material-ui/core/IconButton";
 import Link from "@material-ui/core/Link";
-import MenuIcon from "@material-ui/icons/Menu";
+import List from "@material-ui/core/List";
+import Paper from "@material-ui/core/Paper";
+import { makeStyles } from "@material-ui/core/styles";
+import Toolbar from "@material-ui/core/Toolbar";
+import Typography from "@material-ui/core/Typography";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
-import NotificationsIcon from "@material-ui/icons/Notifications";
+import MenuIcon from "@material-ui/icons/Menu";
+import clsx from "clsx";
+// import "leaflet/dist/leaflet.css";
+import React, { useEffect, useState } from "react";
+import { MapContainer, TileLayer, Marker } from "react-leaflet";
+import Activities from "./Activities";
 import { mainListItems, secondaryListItems } from "./listItems";
-import Chart from "./Chart";
-import Deposits from "./Deposits";
-import Orders from "./Orders";
+import { map } from "leaflet";
+import useGeoLocation, { location } from "../utlis/useGeoLocation";
 
 function Copyright() {
   return (
@@ -121,9 +122,22 @@ export default function Dashboard({ acessToken }) {
   const classes = useStyles();
   const [open, setOpen] = useState(true);
   const [activities, setActivities] = useState([]);
-  const clientId = "55628";
-  const clientSecret = "c3349b19eb90b2c7874bca605b0d90e1552ff318";
+  const [authCode, setAuthCode] = useState("");
+  const [toggleLogin, setToggleLogin] = useState(false);
+  const [refreshToken, setRefreshToken] = useState("");
+  const clientId = process.env.REACT_APP_CLIENT_ID;
+  const clientSecret = process.env.REACT_APP_CLIENT_SECRET;
+  const location = useGeoLocation();
+
   const callActivities = `https://www.strava.com/api/v3/athlete/activities?access_token=`;
+
+  const clickHandler = () => {
+    window.location.replace(
+      `http://www.strava.com/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=http://localhost:3000/dashboard/exchange_token&approval_prompt=force&scope=activity:read_all`
+    );
+  };
+
+  console.log("location ", location);
 
   const getActivities = (access) => {
     // console.log(callActivities + access)
@@ -133,22 +147,60 @@ export default function Dashboard({ acessToken }) {
       .catch((e) => console.log(e));
   };
 
+  const authCall = `https://www.strava.com/oauth/token?client_id=${clientId}&client_secret=${clientSecret}&code=${authCode}&grant_type=authorization_code`;
+
   useEffect(() => {
-    const myUrl = new URL(document.location.href);
-    myUrl.searchParams.forEach((val, key) => {
-      if (key === "code") {
-        const authCall = `https://www.strava.com/oauth/token?client_id=${clientId}&client_secret=${clientSecret}&code=${val}&grant_type=authorization_code`;
-        fetch(authCall, {
-          method: "POST",
-        })
-          .then((res) => res.json())
-          .then((result) => {
-            const access_token = result.access_token;
-            getActivities(access_token);
-          });
+    if (!!authCode) {
+      fetch(authCall, {
+        method: "POST",
+      })
+        .then((res) => res.json())
+        .then((result) => {
+          console.log("results", result);
+          if (result.errors?.length) {
+            setAuthCode("");
+            setToggleLogin(true);
+          } else {
+            const refresh_token = result.refresh_token;
+            console.log("result from refresh ", result);
+            const callRefresh = `https://www.strava.com/oauth/token?client_id=${clientId}&client_secret=${clientSecret}&refresh_token=${refresh_token}&grant_type=refresh_token`;
+            fetch(callRefresh, {
+              method: "POST",
+            })
+              .then((res) => res.json())
+              .then((result) => getActivities(result.access_token));
+          }
+
+          //   getActivities(access_token);
+        });
+    } else {
+      if (!toggleLogin) {
+        const myUrl = new URL(document.location.href);
+        myUrl.searchParams.forEach((val, key) => {
+          if (key === "code") {
+            setAuthCode(val);
+          }
+        });
       }
-    });
-  }, []);
+    }
+  }, [authCode, toggleLogin]);
+
+  //   useEffect(() => {
+  //     const myUrl = new URL(document.location.href);
+  //     myUrl.searchParams.forEach((val, key) => {
+  //       if (key === "code") {
+  //         const authCall = `https://www.strava.com/oauth/token?client_id=${clientId}&client_secret=${clientSecret}&code=${val}&grant_type=authorization_code`;
+  //         fetch(authCall, {
+  //           method: "POST",
+  //         })
+  //           .then((res) => res.json())
+  //           .then((result) => {
+  //             const access_token = result.access_token;
+  //             getActivities(access_token);
+  //           });
+  //       }
+  //     });
+  //   }, []);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -157,6 +209,8 @@ export default function Dashboard({ acessToken }) {
     setOpen(false);
   };
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
+
+  console.log("auth code", authCode);
 
   return (
     <div className={classes.root}>
@@ -187,11 +241,11 @@ export default function Dashboard({ acessToken }) {
           >
             Dashboard
           </Typography>
-          <IconButton color="inherit">
-            <Badge badgeContent={4} color="secondary">
-              <NotificationsIcon />
-            </Badge>
-          </IconButton>
+          {!authCode && (
+            <Button variant="contained" color="primary" onClick={clickHandler}>
+              Login VIa Strava
+            </Button>
+          )}
         </Toolbar>
       </AppBar>
       <Drawer
@@ -213,6 +267,19 @@ export default function Dashboard({ acessToken }) {
       </Drawer>
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
+
+        <MapContainer center={[38.83388, -77.43038]} zoom={13}>
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+          />
+          {location.loaded && !location.errors && (
+            <Marker
+              position={[location.coordinates.lat, location.coordinates.lng]}
+            ></Marker>
+          )}
+        </MapContainer>
+
         <Container maxWidth="lg" className={classes.container}>
           <Grid container spacing={3}>
             {/* Chart */}
@@ -230,7 +297,7 @@ export default function Dashboard({ acessToken }) {
             {/* Recent Orders */}
             <Grid item xs={12}>
               <Paper className={classes.paper}>
-                <Orders activities={activities} />
+                <Activities activities={activities} />
               </Paper>
             </Grid>
           </Grid>
