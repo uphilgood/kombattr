@@ -17,12 +17,12 @@ import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import MenuIcon from "@material-ui/icons/Menu";
 import clsx from "clsx";
 // import "leaflet/dist/leaflet.css";
-import React, { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker } from "react-leaflet";
+import React, { useEffect, useState, useRef } from "react";
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import Activities from "./Activities";
 import { mainListItems, secondaryListItems } from "./listItems";
 import { map } from "leaflet";
-import useGeoLocation, { location } from "../utlis/useGeoLocation";
+import useGeoLocation from "../utlis/useGeoLocation";
 
 function Copyright() {
   return (
@@ -124,10 +124,12 @@ export default function Dashboard({ acessToken }) {
   const [activities, setActivities] = useState([]);
   const [authCode, setAuthCode] = useState("");
   const [toggleLogin, setToggleLogin] = useState(false);
-  const [refreshToken, setRefreshToken] = useState("");
+  const [center, setCenter] = useState([38.83388, -77.43038]);
   const clientId = process.env.REACT_APP_CLIENT_ID;
   const clientSecret = process.env.REACT_APP_CLIENT_SECRET;
   const location = useGeoLocation();
+  const mapRef = useRef();
+  const ZOOM_LEVEL = 9;
 
   const callActivities = `https://www.strava.com/api/v3/athlete/activities?access_token=`;
 
@@ -136,8 +138,6 @@ export default function Dashboard({ acessToken }) {
       `http://www.strava.com/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=http://localhost:3000/dashboard/exchange_token&approval_prompt=force&scope=activity:read_all`
     );
   };
-
-  console.log("location ", location);
 
   const getActivities = (access) => {
     // console.log(callActivities + access)
@@ -210,7 +210,18 @@ export default function Dashboard({ acessToken }) {
   };
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
-  console.log("auth code", authCode);
+  const MyComponent = () => {
+    const map = useMapEvents({
+      click: () => {
+        map.locate();
+      },
+      locationfound: (location) => {
+        console.log("location found:", location);
+        setCenter([location.latitude, location.longitude]);
+      },
+    });
+    return null;
+  };
 
   return (
     <div className={classes.root}>
@@ -268,15 +279,14 @@ export default function Dashboard({ acessToken }) {
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
 
-        <MapContainer center={[38.83388, -77.43038]} zoom={13}>
+        <MapContainer center={center} zoom={13} ref={mapRef}>
           <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
+          <MyComponent />
           {location.loaded && !location.errors && (
-            <Marker
-              position={[location.coordinates.lat, location.coordinates.lng]}
-            ></Marker>
+            <Marker position={center}></Marker>
           )}
         </MapContainer>
 
