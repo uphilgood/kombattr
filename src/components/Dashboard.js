@@ -17,12 +17,18 @@ import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import MenuIcon from "@material-ui/icons/Menu";
 import clsx from "clsx";
 // import "leaflet/dist/leaflet.css";
-import React, { useEffect, useState, useRef } from "react";
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import React, { useEffect, useState, forwardRef } from "react";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  useMapEvents,
+  Circle,
+} from "react-leaflet";
 import Activities from "./Activities";
 import { mainListItems, secondaryListItems } from "./listItems";
-import { map } from "leaflet";
 import useGeoLocation from "../utlis/useGeoLocation";
+import L from "leaflet";
 
 function Copyright() {
   return (
@@ -124,11 +130,12 @@ export default function Dashboard({ acessToken }) {
   const [activities, setActivities] = useState([]);
   const [authCode, setAuthCode] = useState("");
   const [toggleLogin, setToggleLogin] = useState(false);
+  const [accessToken, setAccessToken] = useState("");
   const [center, setCenter] = useState([38.83388, -77.43038]);
   const clientId = process.env.REACT_APP_CLIENT_ID;
   const clientSecret = process.env.REACT_APP_CLIENT_SECRET;
   const location = useGeoLocation();
-  const mapRef = useRef();
+  //   const mapRef = forwardRef();
   const ZOOM_LEVEL = 9;
 
   const callActivities = `https://www.strava.com/api/v3/athlete/activities?access_token=`;
@@ -168,7 +175,10 @@ export default function Dashboard({ acessToken }) {
               method: "POST",
             })
               .then((res) => res.json())
-              .then((result) => getActivities(result.access_token));
+              .then((result) => {
+                setAccessToken(result.access_token);
+                getActivities(result.access_token);
+              });
           }
 
           //   getActivities(access_token);
@@ -186,21 +196,8 @@ export default function Dashboard({ acessToken }) {
   }, [authCode, toggleLogin]);
 
   //   useEffect(() => {
-  //     const myUrl = new URL(document.location.href);
-  //     myUrl.searchParams.forEach((val, key) => {
-  //       if (key === "code") {
-  //         const authCall = `https://www.strava.com/oauth/token?client_id=${clientId}&client_secret=${clientSecret}&code=${val}&grant_type=authorization_code`;
-  //         fetch(authCall, {
-  //           method: "POST",
-  //         })
-  //           .then((res) => res.json())
-  //           .then((result) => {
-  //             const access_token = result.access_token;
-  //             getActivities(access_token);
-  //           });
-  //       }
-  //     });
-  //   }, []);
+  //     console.log("bounds ", this.refs.map.getBounds);
+  //   }, [mapRef]);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -213,16 +210,35 @@ export default function Dashboard({ acessToken }) {
   const MyComponent = () => {
     const map = useMapEvents({
       click: () => {
-        map.locate();
-      },
-      locationfound: (location) => {
-        console.log("location found:", location);
-        setCenter([location.latitude, location.longitude]);
+        const bounds = map.getBounds();
+        console.log("location found:", bounds);
+        const mapBounds = [
+          bounds._southWest.lat,
+          bounds._southWest.lng,
+          bounds._northEast.lat,
+          bounds._northEast.lng,
+        ];
+        const callSegments = `https://www.strava.com/api/v3/segments/explore?bounds=${mapBounds}&activity_type=riding&access_token=`;
+        fetch(callSegments + accessToken)
+          .then((res) => res.json())
+          .then((data) => console.log("segment data", data))
+          .catch((e) => console.log(e));
       },
     });
     return null;
   };
 
+  //   const CircleBoundary = () => {
+  //     const circleRef = useRef();
+
+  //     useEffect(() => {
+  //       const radius = circleRef.current.getRadius();
+  //       console.log("radius bounds", circleRef.current.getBounds());
+  //     }, []);
+
+  //     return <Circle ref={circleRef} center={center} radius={1000} />;
+  //   };
+  //   console.log("bounds ", this.refs.map.leafletElement.getBounds);
   return (
     <div className={classes.root}>
       <CssBaseline />
@@ -279,12 +295,13 @@ export default function Dashboard({ acessToken }) {
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
 
-        <MapContainer center={center} zoom={13} ref={mapRef}>
+        <MapContainer center={center} zoom={13}>
           <TileLayer
             attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           <MyComponent />
+          {/* <CircleBoundary /> */}
           {location.loaded && !location.errors && (
             <Marker position={center}></Marker>
           )}
