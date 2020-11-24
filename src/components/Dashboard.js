@@ -180,8 +180,6 @@ export default function Dashboard({ acessToken }) {
                 getActivities(result.access_token);
               });
           }
-
-          //   getActivities(access_token);
         });
     } else {
       if (!toggleLogin) {
@@ -209,7 +207,7 @@ export default function Dashboard({ acessToken }) {
 
   const MyComponent = () => {
     const map = useMapEvents({
-      click: () => {
+      click: async () => {
         const bounds = map.getBounds();
         console.log("location found:", bounds);
         const mapBounds = [
@@ -219,10 +217,22 @@ export default function Dashboard({ acessToken }) {
           bounds._northEast.lng,
         ];
         const callSegments = `https://www.strava.com/api/v3/segments/explore?bounds=${mapBounds}&activity_type=riding&access_token=`;
-        fetch(callSegments + accessToken)
-          .then((res) => res.json())
-          .then((data) => console.log("segment data", data))
-          .catch((e) => console.log(e));
+        const segments = await fetch(callSegments + accessToken);
+
+        const segmentData = await segments.json();
+
+        const listOfSegments = segmentData.segments;
+
+        let segs = [];
+
+        for (const segment of listOfSegments) {
+          const segmentEfforts = `https://www.strava.com/api/v3/segment_efforts?segment_id=${segment.id}&access_token=`;
+          const segmentEffortsCall = await fetch(segmentEfforts + accessToken);
+          const segmentEffortData = await segmentEffortsCall.json();
+          const hasSegmentEffort = !!segmentEffortData.length;
+          hasSegmentEffort && segs.push(segmentEffortData);
+        }
+        console.log("my segment efforts ", segs);
       },
     });
     return null;
@@ -309,19 +319,6 @@ export default function Dashboard({ acessToken }) {
 
         <Container maxWidth="lg" className={classes.container}>
           <Grid container spacing={3}>
-            {/* Chart */}
-            {/* <Grid item xs={12} md={8} lg={9}>
-              <Paper className={fixedHeightPaper}>
-                <Chart />
-              </Paper>
-            </Grid> */}
-            {/* Recent Deposits */}
-            {/* <Grid item xs={12} md={4} lg={3}>
-              <Paper className={fixedHeightPaper}>
-                <Deposits />
-              </Paper>
-            </Grid> */}
-            {/* Recent Orders */}
             <Grid item xs={12}>
               <Paper className={classes.paper}>
                 <Activities activities={activities} />
