@@ -44,8 +44,6 @@ const Home = ({ setAccessCode, accessCode }) => {
   );
 };
 
-const Main = () => {};
-
 const App = () => {
   return (
     // <userContext.Provider value={{ accessCode, setAccessCode }}>
