@@ -132,6 +132,7 @@ export default function Dashboard({ acessToken }) {
   const [toggleLogin, setToggleLogin] = useState(false);
   const [accessToken, setAccessToken] = useState("");
   const [center, setCenter] = useState([38.83388, -77.43038]);
+  const [segmentData, setSegmentData] = useState([]);
   const clientId = process.env.REACT_APP_CLIENT_ID;
   const clientSecret = process.env.REACT_APP_CLIENT_SECRET;
   const location = useGeoLocation();
@@ -223,16 +224,33 @@ export default function Dashboard({ acessToken }) {
 
         const listOfSegments = segmentData.segments;
 
-        let segs = [];
+        console.log("all segs ", listOfSegments);
 
-        for (const segment of listOfSegments) {
-          const segmentEfforts = `https://www.strava.com/api/v3/segment_efforts?segment_id=${segment.id}&access_token=`;
+        // let segs = [];
+
+        for (var i = 0; i < listOfSegments.length; i++) {
+          const segmentEfforts = `https://www.strava.com/api/v3/segment_efforts?segment_id=${listOfSegments[i].id}&access_token=`;
           const segmentEffortsCall = await fetch(segmentEfforts + accessToken);
           const segmentEffortData = await segmentEffortsCall.json();
-          const hasSegmentEffort = !!segmentEffortData.length;
-          hasSegmentEffort && segs.push(segmentEffortData);
+
+          const getSegmentEfforts = `https://www.strava.com/api/v3/segments/${listOfSegments[i].id}?access_token=`;
+          const getSegmentEffortsCall = await fetch(
+            getSegmentEfforts + accessToken
+          );
+          const getSegmentEffortData = await getSegmentEffortsCall.json();
+          const athleteStats = getSegmentEffortData.athlete_segment_stats;
+          const komStats = getSegmentEffortData.xoms;
+          const mapStats = getSegmentEffortData.map;
+
+          listOfSegments[i] = {
+            ...listOfSegments[i],
+            ...segmentEffortData[0],
+            athleteStats,
+            komStats,
+            mapStats,
+          };
         }
-        console.log("my segment efforts ", segs);
+        setSegmentData(listOfSegments);
       },
     });
     return null;
@@ -316,6 +334,14 @@ export default function Dashboard({ acessToken }) {
             <Marker position={center}></Marker>
           )}
         </MapContainer>
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <Paper className={classes.paper}>
+              {!!segmentData.length &&
+                segmentData.map((seg) => <div>{seg.name}</div>)}
+            </Paper>
+          </Grid>
+        </Grid>
 
         <Container maxWidth="lg" className={classes.container}>
           <Grid container spacing={3}>
