@@ -28,7 +28,7 @@ import {
 import Activities from "./Activities";
 import { mainListItems, secondaryListItems } from "./listItems";
 import useGeoLocation from "../utlis/useGeoLocation";
-import L from "leaflet";
+import SegmentCard from "./SegmentCard";
 
 function Copyright() {
   return (
@@ -334,14 +334,11 @@ export default function Dashboard({ acessToken }) {
             <Marker position={center}></Marker>
           )}
         </MapContainer>
-        <Grid container spacing={3}>
-          <Grid item xs={12}>
-            <Paper className={classes.paper}>
-              {!!segmentData.length &&
-                segmentData.map((seg) => <div>{seg.name}</div>)}
-            </Paper>
-          </Grid>
-        </Grid>
+
+        <div style={{ display: "flex", flexWrap: "wrap" }}>
+          {!!segmentData.length &&
+            segmentData.map((seg) => <SegmentCard segmentData={seg} />)}
+        </div>
 
         <Container maxWidth="lg" className={classes.container}>
           <Grid container spacing={3}>
