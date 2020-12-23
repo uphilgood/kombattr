@@ -33,12 +33,12 @@ const SegmentCard = ({ segmentData }) => {
 
   const {
     athleteStats,
-    climb_category,
+    // climb_category,
     distance,
     elevation_profile,
     komStats,
-    mapStats,
-    starred,
+    // mapStats,
+    // starred,
     name,
   } = segmentData;
 

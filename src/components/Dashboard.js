@@ -17,14 +17,8 @@ import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import MenuIcon from "@material-ui/icons/Menu";
 import clsx from "clsx";
 // import "leaflet/dist/leaflet.css";
-import React, { useEffect, useState, forwardRef } from "react";
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  useMapEvents,
-  Circle,
-} from "react-leaflet";
+import React, { useEffect, useState } from "react";
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import Activities from "./Activities";
 import { mainListItems, secondaryListItems } from "./listItems";
 import useGeoLocation from "../utlis/useGeoLocation";
@@ -131,13 +125,11 @@ export default function Dashboard({ acessToken }) {
   const [authCode, setAuthCode] = useState("");
   const [toggleLogin, setToggleLogin] = useState(false);
   const [accessToken, setAccessToken] = useState("");
-  const [center, setCenter] = useState([38.83388, -77.43038]);
   const [segmentData, setSegmentData] = useState([]);
   const clientId = process.env.REACT_APP_CLIENT_ID;
   const clientSecret = process.env.REACT_APP_CLIENT_SECRET;
   const location = useGeoLocation();
   //   const mapRef = forwardRef();
-  const ZOOM_LEVEL = 9;
 
   const callActivities = `https://www.strava.com/api/v3/athlete/activities?access_token=`;
 
@@ -192,7 +184,7 @@ export default function Dashboard({ acessToken }) {
         });
       }
     }
-  }, [authCode, toggleLogin]);
+  }, [authCall, authCode, clientId, clientSecret, getActivities, toggleLogin]);
 
   //   useEffect(() => {
   //     console.log("bounds ", this.refs.map.getBounds);
@@ -204,7 +196,6 @@ export default function Dashboard({ acessToken }) {
   const handleDrawerClose = () => {
     setOpen(false);
   };
-  const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
   const MyComponent = () => {
     const map = useMapEvents({
@@ -323,7 +314,7 @@ export default function Dashboard({ acessToken }) {
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
 
-        <MapContainer center={center} zoom={13}>
+        <MapContainer center={[38.83388, -77.43038]} zoom={13}>
           <TileLayer
             attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -331,7 +322,7 @@ export default function Dashboard({ acessToken }) {
           <MyComponent />
           {/* <CircleBoundary /> */}
           {location.loaded && !location.errors && (
-            <Marker position={center}></Marker>
+            <Marker position={[38.83388, -77.43038]}></Marker>
           )}
         </MapContainer>
 

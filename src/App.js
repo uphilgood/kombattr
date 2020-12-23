@@ -1,13 +1,8 @@
-import React, { useEffect, useState, useContext } from "react";
+import React from "react";
 import "./App.css";
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
-import {
-  BrowserRouter as Router,
-  Route,
-  Switch,
-  useHistory,
-} from "react-router-dom";
+import { BrowserRouter as Router, Route, useHistory } from "react-router-dom";
 import Dashboard from "./components/Dashboard";
 
 const useStyles = makeStyles((theme) => ({
