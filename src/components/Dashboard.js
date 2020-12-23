@@ -17,7 +17,7 @@ import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import MenuIcon from "@material-ui/icons/Menu";
 import clsx from "clsx";
 // import "leaflet/dist/leaflet.css";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import Activities from "./Activities";
 import { mainListItems, secondaryListItems } from "./listItems";
@@ -131,21 +131,20 @@ export default function Dashboard({ acessToken }) {
   const location = useGeoLocation();
   //   const mapRef = forwardRef();
 
-  const callActivities = `https://www.strava.com/api/v3/athlete/activities?access_token=`;
-
   const clickHandler = () => {
     window.location.replace(
       `http://www.strava.com/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=http://localhost:3000/dashboard/exchange_token&approval_prompt=force&scope=activity:read_all`
     );
   };
 
-  const getActivities = (access) => {
+  const getActivities = useCallback((access) => {
+    const callActivities = `https://www.strava.com/api/v3/athlete/activities?access_token=`;
     // console.log(callActivities + access)
     fetch(callActivities + access)
       .then((res) => res.json())
       .then((data) => setActivities(data))
       .catch((e) => console.log(e));
-  };
+  }, []);
 
   const authCall = `https://www.strava.com/oauth/token?client_id=${clientId}&client_secret=${clientSecret}&code=${authCode}&grant_type=authorization_code`;
 
