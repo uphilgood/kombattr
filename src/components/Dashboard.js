@@ -129,7 +129,6 @@ export default function Dashboard({ acessToken }) {
   const clientId = process.env.REACT_APP_CLIENT_ID;
   const clientSecret = process.env.REACT_APP_CLIENT_SECRET;
   const location = useGeoLocation();
-  //   const mapRef = forwardRef();
 
   const clickHandler = () => {
     window.location.replace(
