@@ -120,7 +120,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Dashboard({ acessToken }) {
   const classes = useStyles();
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const [activities, setActivities] = useState([]);
   const [authCode, setAuthCode] = useState("");
   const [toggleLogin, setToggleLogin] = useState(false);

@@ -44,6 +44,13 @@ const SegmentCard = ({ segmentData }) => {
 
   console.log("segment data", segmentData);
 
+  const getStandardTime = (time) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = time - minutes * 60;
+
+    return !!minutes ? `${minutes}:${seconds}` : `${seconds}s`;
+  };
+
   return (
     <Card className={classes.root} variant="outlined">
       <CardContent>
@@ -68,7 +75,9 @@ const SegmentCard = ({ segmentData }) => {
         </Typography>
         <Typography className={classes.pos} color="textSecondary">
           Your Current PR:{" "}
-          {athleteStats.pr_elapsed_time ? athleteStats.pr_elapsed_time : "N/A"}
+          {athleteStats.pr_elapsed_time
+            ? getStandardTime(athleteStats.pr_elapsed_time)
+            : "N/A"}
         </Typography>
         <Typography variant="body2" component="p">
           Distance: {distance}
