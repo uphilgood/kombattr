@@ -145,33 +145,33 @@ export default function Dashboard({ acessToken }) {
       .catch((e) => console.log(e));
   }, []);
 
-  const authCall = `https://www.strava.com/oauth/token?client_id=${clientId}&client_secret=${clientSecret}&code=${authCode}&grant_type=authorization_code`;
-
   useEffect(() => {
-    if (!!authCode) {
-      fetch(authCall, {
+    const authCall = `https://www.strava.com/oauth/token?client_id=${clientId}&client_secret=${clientSecret}&code=${authCode}&grant_type=authorization_code`;
+
+    const getAuth = async () => {
+      const auth = await fetch(authCall, {
         method: "POST",
-      })
-        .then((res) => res.json())
-        .then((result) => {
-          console.log("results", result);
-          if (result.errors?.length) {
-            setAuthCode("");
-            setToggleLogin(true);
-          } else {
-            const refresh_token = result.refresh_token;
-            console.log("result from refresh ", result);
-            const callRefresh = `https://www.strava.com/oauth/token?client_id=${clientId}&client_secret=${clientSecret}&refresh_token=${refresh_token}&grant_type=refresh_token`;
-            fetch(callRefresh, {
-              method: "POST",
-            })
-              .then((res) => res.json())
-              .then((result) => {
-                setAccessToken(result.access_token);
-                getActivities(result.access_token);
-              });
-          }
+      });
+
+      const authData = await auth.json();
+
+      if (authData.errors?.length) {
+        setAuthCode("");
+        setToggleLogin(true);
+      } else {
+        const refreshToken = authData.refresh_token;
+        const callRefresh = `https://www.strava.com/oauth/token?client_id=${clientId}&client_secret=${clientSecret}&refresh_token=${refreshToken}&grant_type=refresh_token`;
+        const getCallRefresh = await fetch(callRefresh, {
+          method: "POST",
         });
+        const callRefreshData = await getCallRefresh.json();
+        setAccessToken(callRefreshData.access_token);
+        getActivities(callRefreshData.access_token);
+      }
+    };
+
+    if (!!authCode) {
+      getAuth();
     } else {
       if (!toggleLogin) {
         const myUrl = new URL(document.location.href);
@@ -182,7 +182,7 @@ export default function Dashboard({ acessToken }) {
         });
       }
     }
-  }, [authCall, authCode, clientId, clientSecret, getActivities, toggleLogin]);
+  }, [authCode, clientId, clientSecret, getActivities, toggleLogin]);
 
   //   useEffect(() => {
   //     console.log("bounds ", this.refs.map.getBounds);
