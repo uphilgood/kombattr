@@ -132,7 +132,7 @@ export default function Dashboard({ acessToken }) {
 
   const clickHandler = () => {
     window.location.replace(
-      `http://www.strava.com/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=http://localhost:3000/dashboard/exchange_token&approval_prompt=force&scope=activity:read_all`
+      `http://www.strava.com/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=${process.env.REACT_APP_HOST}/dashboard/exchange_token&approval_prompt=force&scope=activity:read_all`
     );
   };
 
