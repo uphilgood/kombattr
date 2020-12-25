@@ -1,56 +1,50 @@
 import React from "react";
-import Link from "@material-ui/core/Link";
 import { makeStyles } from "@material-ui/core/styles";
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableHead from "@material-ui/core/TableHead";
-import TableRow from "@material-ui/core/TableRow";
-import Title from "./Title";
-
-function preventDefault(event) {
-  event.preventDefault();
-}
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemText from "@material-ui/core/ListItemText";
+import ListItemAvatar from "@material-ui/core/ListItemAvatar";
+import Avatar from "@material-ui/core/Avatar";
+import ImageIcon from "@material-ui/icons/Image";
+import { getStandardTime } from "../utlis/getStandardTime";
+import { getStandardDistance } from "../utlis/getStandardDistance";
 
 const useStyles = makeStyles((theme) => ({
-  seeMore: {
-    marginTop: theme.spacing(3),
+  root: {
+    width: "100%",
+    maxWidth: 360,
+    backgroundColor: theme.palette.background.paper,
   },
 }));
 
-export default function Activities({ activities }) {
+export default function Activities({
+  name,
+  average_speed,
+  average_watts,
+  average_cadence,
+  distance,
+  elasped_time,
+  max_speed,
+  max_watts,
+  moving_time,
+}) {
   const classes = useStyles();
+
   return (
-    <React.Fragment>
-      <Title>Recent Activities</Title>
-      <Table size="small">
-        <TableHead>
-          <TableRow>
-            <TableCell>Date</TableCell>
-            <TableCell>Name</TableCell>
-            <TableCell>Ride Time</TableCell>
-            <TableCell>Average Speed</TableCell>
-            <TableCell align="right">Suffer Score</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {!!activities.length &&
-            activities.map((row) => (
-              <TableRow key={row.id}>
-                <TableCell>{row.start_date_local}</TableCell>
-                <TableCell>{row.name}</TableCell>
-                <TableCell>{row.moving_time}</TableCell>
-                <TableCell>{row.average_speed}</TableCell>
-                <TableCell align="right">{row.suffer_score}</TableCell>
-              </TableRow>
-            ))}
-        </TableBody>
-      </Table>
-      <div className={classes.seeMore}>
-        <Link color="primary" href="#" onClick={preventDefault}>
-          See more orders
-        </Link>
-      </div>
-    </React.Fragment>
+    <List className={classes.root}>
+      <ListItem>
+        <ListItemAvatar>
+          <Avatar>
+            <ImageIcon />
+          </Avatar>
+        </ListItemAvatar>
+        <ListItemText
+          primary={name}
+          secondary={`Average Speed: ${average_speed} | Distance: ${getStandardDistance(
+            distance
+          )}M | Moving Time: ${getStandardTime(moving_time)} `}
+        />
+      </ListItem>
+    </List>
   );
 }

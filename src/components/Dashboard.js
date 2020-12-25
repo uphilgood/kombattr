@@ -234,7 +234,7 @@ export default function Dashboard({ acessToken }) {
   };
 
   const getActivities = useCallback((access) => {
-    const callActivities = `https://www.strava.com/api/v3/athlete/activities?access_token=`;
+    const callActivities = `https://www.strava.com/api/v3/athlete/activities?per_page=10&access_token=`;
     fetch(callActivities + access)
       .then((res) => res.json())
       .then((data) => setActivities(data))
@@ -343,6 +343,7 @@ export default function Dashboard({ acessToken }) {
     return null;
   };
 
+  console.log("actiites", activities);
   //   const CircleBoundary = () => {
   //     const circleRef = useRef();
 
@@ -390,7 +391,7 @@ export default function Dashboard({ acessToken }) {
                 variant="h6"
                 align="center"
                 gutterBottom
-              >{`Scroll, Zoom around the map, then click on a spot to see nearby Segments!`}</Typography>
+              >{`Login, Scroll and Zoom around the map! Then click on a spot to see nearby Segments!`}</Typography>
               <Divider />
             </>
           )}
@@ -411,14 +412,12 @@ export default function Dashboard({ acessToken }) {
               description={sidebar.description}
               archives={sidebar.archives}
               social={sidebar.social}
+              activities={activities}
             />
           </Grid>
         </main>
       </Container>
-      <Footer
-        title="Footer"
-        description="Something here to give the footer a purpose!"
-      />
+      <Footer title="Kombattr" description="Battle those KOMs!" />
     </React.Fragment>
     // <div className={classes.root}>
     //   <CssBaseline />

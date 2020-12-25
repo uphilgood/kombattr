@@ -8,6 +8,8 @@ import CardActionArea from "@material-ui/core/CardActionArea";
 import CardContent from "@material-ui/core/CardContent";
 import CardMedia from "@material-ui/core/CardMedia";
 import Hidden from "@material-ui/core/Hidden";
+import StarRateIcon from "@material-ui/icons/StarRate";
+import { getStandardTime } from "../utlis/getStandardTime";
 
 const useStyles = makeStyles({
   card: {
@@ -31,6 +33,7 @@ const SegmentCard = ({ segmentData }) => {
     distance,
     elevation_profile,
     komStats,
+    kom_rank,
     // mapStats,
     // starred,
     name,
@@ -38,12 +41,17 @@ const SegmentCard = ({ segmentData }) => {
 
   console.log("segment data", segmentData);
 
-  const getStandardTime = (time) => {
-    const minutes = Math.floor(time / 60);
-    const seconds = time - minutes * 60;
-
-    return !!minutes ? `${minutes}:${seconds}` : `${seconds}s`;
-  };
+  const stats = [
+    { type: "Current KOM", value: komStats.kom },
+    { type: "Current QOM", value: komStats.qom },
+    {
+      type: "Current PR",
+      value: athleteStats.pr_elapsed_time
+        ? getStandardTime(athleteStats.pr_elapsed_time)
+        : "N/A",
+    },
+    { type: "Distance", value: distance },
+  ];
 
   return (
     <Grid item xs={12} md={6}>
@@ -61,21 +69,20 @@ const SegmentCard = ({ segmentData }) => {
               <Typography component="h2" variant="h5">
                 {name}
               </Typography>
-              <Typography variant="subtitle1" color="textSecondary">
-                Current KOM: {komStats.kom}
-              </Typography>
-              <Typography variant="subtitle1" color="textSecondary">
-                Current QOM: {komStats.qom}
-              </Typography>
-              <Typography variant="subtitle1" color="textSecondary">
-                Your Current PR:
-                {athleteStats.pr_elapsed_time
-                  ? getStandardTime(athleteStats.pr_elapsed_time)
-                  : "N/A"}
-              </Typography>
-              <Typography variant="subtitle1" color="primary">
-                Distance: {distance}
-              </Typography>
+              {kom_rank && (
+                <div style={{ display: "flex" }}>
+                  <StarRateIcon />
+                  <Typography component="h3" variant="h8">
+                    You are currently ranked {kom_rank} in the all time
+                    standings!
+                  </Typography>
+                </div>
+              )}
+              {stats.map((stat) => (
+                <Typography variant="subtitle1" color="textSecondary">
+                  {stat.type}: {stat.value}
+                </Typography>
+              ))}
             </CardContent>
           </div>
         </Card>

@@ -5,6 +5,7 @@ import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
 import Link from "@material-ui/core/Link";
+import Activities from "./Activities";
 
 const useStyles = makeStyles((theme) => ({
   sidebarAboutBox: {
@@ -18,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Sidebar(props) {
   const classes = useStyles();
-  const { archives, description, social, title } = props;
+  const { archives, description, social, title, activities } = props;
 
   return (
     <Grid item xs={12} md={4}>
@@ -29,18 +30,22 @@ export default function Sidebar(props) {
         <Typography>{description}</Typography>
       </Paper>
       <Typography variant="h6" gutterBottom className={classes.sidebarSection}>
-        Archives
+        Recent Activities
       </Typography>
-      {archives.map((archive) => (
-        <Link
-          display="block"
-          variant="body1"
-          href={archive.url}
-          key={archive.title}
-        >
-          {archive.title}
-        </Link>
-      ))}
+      {!!activities.length &&
+        activities.map((activity) => (
+          <Activities
+            name={activity.name}
+            average_speed={activity.average_speed}
+            average_watts={activity.average_watts}
+            average_cadence={activity.average_cadence}
+            distance={activity.distance}
+            elasped_time={activity.elasped_time}
+            max_speed={activity.max_speed}
+            max_watts={activity.max_watts}
+            moving_time={activity.moving_time}
+          />
+        ))}
       <Typography variant="h6" gutterBottom className={classes.sidebarSection}>
         Social
       </Typography>
@@ -68,4 +73,5 @@ Sidebar.propTypes = {
   description: PropTypes.string,
   social: PropTypes.array,
   title: PropTypes.string,
+  activities: PropTypes.array,
 };
