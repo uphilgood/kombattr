@@ -10,6 +10,7 @@ import CardMedia from "@material-ui/core/CardMedia";
 import Hidden from "@material-ui/core/Hidden";
 import StarRateIcon from "@material-ui/icons/StarRate";
 import { getStandardTime } from "../utlis/getStandardTime";
+import { getStandardDistance } from "../utlis/getStandardDistance";
 
 const useStyles = makeStyles({
   card: {
@@ -50,7 +51,7 @@ const SegmentCard = ({ segmentData }) => {
         ? getStandardTime(athleteStats.pr_elapsed_time)
         : "N/A",
     },
-    { type: "Distance", value: distance },
+    { type: "Distance", value: `${getStandardDistance(distance)} Miles` },
   ];
 
   return (

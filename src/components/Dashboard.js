@@ -1,54 +1,19 @@
-import AppBar from "@material-ui/core/AppBar";
-import Box from "@material-ui/core/Box";
-import Button from "@material-ui/core/Button";
 import Container from "@material-ui/core/Container";
 import CssBaseline from "@material-ui/core/CssBaseline";
-import Drawer from "@material-ui/core/Drawer";
 import Grid from "@material-ui/core/Grid";
-import IconButton from "@material-ui/core/IconButton";
-import Link from "@material-ui/core/Link";
-import List from "@material-ui/core/List";
-import Paper from "@material-ui/core/Paper";
 import { makeStyles } from "@material-ui/core/styles";
-import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
-import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
-import MenuIcon from "@material-ui/icons/Menu";
-import clsx from "clsx";
-// import "leaflet/dist/leaflet.css";
 import React, { useEffect, useState, useCallback } from "react";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
-import Activities from "./Activities";
-import { mainListItems, secondaryListItems } from "./listItems";
 import useGeoLocation from "../utlis/useGeoLocation";
 import SegmentCard from "./SegmentCard";
-
 import GitHubIcon from "@material-ui/icons/GitHub";
 import FacebookIcon from "@material-ui/icons/Facebook";
 import TwitterIcon from "@material-ui/icons/Twitter";
 import Header from "./Header";
-import MainFeaturedPost from "./MainFeaturedPost";
-import FeaturedPost from "./FeaturedPost";
-import Main from "./Main";
 import Sidebar from "./Sidebar";
 import Footer from "./Footer";
 import Divider from "@material-ui/core/Divider";
-// import post1 from "./blog-post.1.md";
-// import post2 from "./blog-post.2.md";
-// import post3 from "./blog-post.3.md";
-
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {"Copyright © "}
-      <Link color="inherit" href="https://material-ui.com/">
-        Your Website
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
 
 const drawerWidth = 240;
 
@@ -148,40 +113,9 @@ const sections = [
   { title: "My Activies", url: "#" },
 ];
 
-const mainFeaturedPost = {
-  title: "Title of a longer featured blog post",
-  description:
-    "Multiple lines of text that form the lede, informing new readers quickly and efficiently about what's most interesting in this post's contents.",
-  image: "https://source.unsplash.com/random",
-  imgText: "main image description",
-  linkText: "Continue reading…",
-};
-
-const featuredPosts = [
-  {
-    title: "Featured post",
-    date: "Nov 12",
-    description:
-      "This is a wider card with supporting text below as a natural lead-in to additional content.",
-    image: "https://source.unsplash.com/random",
-    imageText: "Image Text",
-  },
-  {
-    title: "Post title",
-    date: "Nov 11",
-    description:
-      "This is a wider card with supporting text below as a natural lead-in to additional content.",
-    image: "https://source.unsplash.com/random",
-    imageText: "Image Text",
-  },
-];
-
-const posts = [];
-
 const sidebar = {
-  title: "About",
-  description:
-    "Etiam porta sem malesuada magna mollis euismod. Cras mattis consectetur purus sit amet fermentum. Aenean lacinia bibendum nulla sed consectetur.",
+  title: "KOMs",
+  description: "No KOMs yet! Keep Trying!",
   archives: [
     { title: "March 2020", url: "#" },
     { title: "February 2020", url: "#" },
@@ -216,7 +150,6 @@ const sidebar = {
 
 export default function Dashboard({ acessToken }) {
   const classes = useStyles();
-  const [open, setOpen] = useState(false);
   const [activities, setActivities] = useState([]);
   const [authCode, setAuthCode] = useState("");
   const [toggleLogin, setToggleLogin] = useState(false);
@@ -284,13 +217,6 @@ export default function Dashboard({ acessToken }) {
     }
   }, [authCode, clientId, clientSecret, getActivities, toggleLogin]);
 
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
-
   const MyComponent = () => {
     const map = useMapEvents({
       click: async () => {
@@ -343,18 +269,6 @@ export default function Dashboard({ acessToken }) {
     return null;
   };
 
-  console.log("actiites", activities);
-  //   const CircleBoundary = () => {
-  //     const circleRef = useRef();
-
-  //     useEffect(() => {
-  //       const radius = circleRef.current.getRadius();
-  //       console.log("radius bounds", circleRef.current.getBounds());
-  //     }, []);
-
-  //     return <Circle ref={circleRef} center={center} radius={1000} />;
-  //   };
-  //   console.log("bounds ", this.refs.map.leafletElement.getBounds);
   return (
     <React.Fragment>
       <CssBaseline />
@@ -391,7 +305,7 @@ export default function Dashboard({ acessToken }) {
                 variant="h6"
                 align="center"
                 gutterBottom
-              >{`Login, Scroll and Zoom around the map! Then click on a spot to see nearby Segments!`}</Typography>
+              >{`Signin, Scroll and Zoom around the map! Then click on a spot to see nearby Segments!`}</Typography>
               <Divider />
             </>
           )}
@@ -407,105 +321,19 @@ export default function Dashboard({ acessToken }) {
                   />
                 ))}
             </Grid>
-            <Sidebar
-              title={sidebar.title}
-              description={sidebar.description}
-              archives={sidebar.archives}
-              social={sidebar.social}
-              activities={activities}
-            />
+            {!!activities.length && (
+              <Sidebar
+                title={sidebar.title}
+                description={sidebar.description}
+                archives={sidebar.archives}
+                social={sidebar.social}
+                activities={activities}
+              />
+            )}
           </Grid>
         </main>
       </Container>
       <Footer title="Kombattr" description="Battle those KOMs!" />
     </React.Fragment>
-    // <div className={classes.root}>
-    //   <CssBaseline />
-    //   <AppBar
-    //     position="absolute"
-    //     className={clsx(classes.appBar, open && classes.appBarShift)}
-    //   >
-    //     <Toolbar className={classes.toolbar}>
-    //       <IconButton
-    //         edge="start"
-    //         color="inherit"
-    //         aria-label="open drawer"
-    //         onClick={handleDrawerOpen}
-    //         className={clsx(
-    //           classes.menuButton,
-    //           open && classes.menuButtonHidden
-    //         )}
-    //       >
-    //         <MenuIcon />
-    //       </IconButton>
-    //       <Typography
-    //         component="h1"
-    //         variant="h6"
-    //         color="inherit"
-    //         noWrap
-    //         className={classes.title}
-    //       >
-    //         Dashboard
-    //       </Typography>
-    //       {!authCode && (
-    //         <Button variant="contained" color="primary" onClick={clickHandler}>
-    //           Login VIa Strava
-    //         </Button>
-    //       )}
-    //     </Toolbar>
-    //   </AppBar>
-    //   <Drawer
-    //     variant="permanent"
-    //     classes={{
-    //       paper: clsx(classes.drawerPaper, !open && classes.drawerPaperClose),
-    //     }}
-    //     open={open}
-    //   >
-    //     <div className={classes.toolbarIcon}>
-    //       <IconButton onClick={handleDrawerClose}>
-    //         <ChevronLeftIcon />
-    //       </IconButton>
-    //     </div>
-    //     <Divider />
-    //     <List>{mainListItems}</List>
-    //     <Divider />
-    //     <List>{secondaryListItems}</List>
-    //   </Drawer>
-    //   <main className={classes.content}>
-    //     <div className={classes.appBarSpacer} />
-
-    //     <MapContainer center={[38.83388, -77.43038]} zoom={13}>
-    //       <TileLayer
-    //         attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-    //         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-    //       />
-    //       <MyComponent />
-    //       {/* <CircleBoundary /> */}
-    //       {location.loaded && !location.errors && (
-    //         <Marker position={[38.83388, -77.43038]}></Marker>
-    //       )}
-    //     </MapContainer>
-
-    //     <Container maxWidth="lg" className={classes.container}>
-    //       <div style={{ display: "flex", flexWrap: "wrap" }}>
-    //         {!!segmentData.length &&
-    //           segmentData.map((seg) => <SegmentCard segmentData={seg} />)}
-    //       </div>
-    //     </Container>
-
-    //     <Container maxWidth="lg" className={classes.container}>
-    //       <Grid container spacing={3}>
-    //         <Grid item xs={12}>
-    //           <Paper className={classes.paper}>
-    //             <Activities activities={activities} />
-    //           </Paper>
-    //         </Grid>
-    //       </Grid>
-    //       <Box pt={4}>
-    //         <Copyright />
-    //       </Box>
-    //     </Container>
-    //   </main>
-    // </div>
   );
 }
