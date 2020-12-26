@@ -1,41 +1,19 @@
-import AppBar from "@material-ui/core/AppBar";
-import Box from "@material-ui/core/Box";
-import Button from "@material-ui/core/Button";
 import Container from "@material-ui/core/Container";
 import CssBaseline from "@material-ui/core/CssBaseline";
-import Divider from "@material-ui/core/Divider";
-import Drawer from "@material-ui/core/Drawer";
 import Grid from "@material-ui/core/Grid";
-import IconButton from "@material-ui/core/IconButton";
-import Link from "@material-ui/core/Link";
-import List from "@material-ui/core/List";
-import Paper from "@material-ui/core/Paper";
 import { makeStyles } from "@material-ui/core/styles";
-import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
-import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
-import MenuIcon from "@material-ui/icons/Menu";
-import clsx from "clsx";
-// import "leaflet/dist/leaflet.css";
 import React, { useEffect, useState, useCallback } from "react";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
-import Activities from "./Activities";
-import { mainListItems, secondaryListItems } from "./listItems";
 import useGeoLocation from "../utlis/useGeoLocation";
 import SegmentCard from "./SegmentCard";
-
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {"Copyright © "}
-      <Link color="inherit" href="https://material-ui.com/">
-        Your Website
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
+import GitHubIcon from "@material-ui/icons/GitHub";
+import FacebookIcon from "@material-ui/icons/Facebook";
+import TwitterIcon from "@material-ui/icons/Twitter";
+import Header from "./Header";
+import Sidebar from "./Sidebar";
+import Footer from "./Footer";
+import Divider from "@material-ui/core/Divider";
 
 const drawerWidth = 240;
 
@@ -116,16 +94,68 @@ const useStyles = makeStyles((theme) => ({
   fixedHeight: {
     height: 240,
   },
+  mainGrid: {
+    marginTop: theme.spacing(3),
+  },
+  mainMapContainer: {
+    position: "relative",
+    backgroundColor: theme.palette.grey[800],
+    color: theme.palette.common.white,
+    marginBottom: theme.spacing(4),
+  },
+  cardTheme: {
+    padding: theme.spacing(3, 0),
+  },
 }));
+
+const sections = [
+  { title: "My KOMs", url: "#" },
+  { title: "My Activies", url: "#" },
+];
+
+const sidebar = {
+  title: "KOMs",
+  description: "No KOMs yet! Keep Trying!",
+  archives: [
+    { title: "March 2020", url: "#" },
+    { title: "February 2020", url: "#" },
+    { title: "January 2020", url: "#" },
+    { title: "November 1999", url: "#" },
+    { title: "October 1999", url: "#" },
+    { title: "September 1999", url: "#" },
+    { title: "August 1999", url: "#" },
+    { title: "July 1999", url: "#" },
+    { title: "June 1999", url: "#" },
+    { title: "May 1999", url: "#" },
+    { title: "April 1999", url: "#" },
+  ],
+  social: [
+    {
+      name: "GitHub",
+      icon: GitHubIcon,
+      onClick: () => window.open("https://github.com/uphilgood"),
+    },
+    {
+      name: "Twitter",
+      icon: TwitterIcon,
+      onClick: () => window.open("https://www.facebook.com/philip.lee.7568"),
+    },
+    {
+      name: "Facebook",
+      icon: FacebookIcon,
+      onClick: () => window.open("https://twitter.com/JourneyToCode1"),
+    },
+  ],
+};
 
 export default function Dashboard({ acessToken }) {
   const classes = useStyles();
-  const [open, setOpen] = useState(false);
   const [activities, setActivities] = useState([]);
   const [authCode, setAuthCode] = useState("");
   const [toggleLogin, setToggleLogin] = useState(false);
   const [accessToken, setAccessToken] = useState("");
   const [segmentData, setSegmentData] = useState([]);
+  const [athleteInfo, setAthleteInfo] = useState("");
   const clientId = process.env.REACT_APP_CLIENT_ID;
   const clientSecret = process.env.REACT_APP_CLIENT_SECRET;
   const location = useGeoLocation();
@@ -137,8 +167,7 @@ export default function Dashboard({ acessToken }) {
   };
 
   const getActivities = useCallback((access) => {
-    const callActivities = `https://www.strava.com/api/v3/athlete/activities?access_token=`;
-    // console.log(callActivities + access)
+    const callActivities = `https://www.strava.com/api/v3/athlete/activities?per_page=10&access_token=`;
     fetch(callActivities + access)
       .then((res) => res.json())
       .then((data) => setActivities(data))
@@ -154,6 +183,10 @@ export default function Dashboard({ acessToken }) {
       });
 
       const authData = await auth.json();
+
+      setAthleteInfo(
+        `${authData?.athlete?.firstname} ${authData?.athlete?.lastname}`
+      );
 
       if (authData.errors?.length) {
         setAuthCode("");
@@ -184,164 +217,123 @@ export default function Dashboard({ acessToken }) {
     }
   }, [authCode, clientId, clientSecret, getActivities, toggleLogin]);
 
-  //   useEffect(() => {
-  //     console.log("bounds ", this.refs.map.getBounds);
-  //   }, [mapRef]);
-
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
-
   const MyComponent = () => {
     const map = useMapEvents({
       click: async () => {
-        const bounds = map.getBounds();
-        console.log("location found:", bounds);
-        const mapBounds = [
-          bounds._southWest.lat,
-          bounds._southWest.lng,
-          bounds._northEast.lat,
-          bounds._northEast.lng,
-        ];
-        const callSegments = `https://www.strava.com/api/v3/segments/explore?bounds=${mapBounds}&activity_type=riding&access_token=`;
-        const segments = await fetch(callSegments + accessToken);
+        if (authCode) {
+          const bounds = map.getBounds();
+          console.log("location found:", bounds);
+          const mapBounds = [
+            bounds._southWest.lat,
+            bounds._southWest.lng,
+            bounds._northEast.lat,
+            bounds._northEast.lng,
+          ];
+          const callSegments = `https://www.strava.com/api/v3/segments/explore?bounds=${mapBounds}&activity_type=riding&access_token=`;
+          const segments = await fetch(callSegments + accessToken);
 
-        const segmentData = await segments.json();
+          const segmentData = await segments.json();
 
-        const listOfSegments = segmentData.segments;
+          const listOfSegments = segmentData.segments;
 
-        console.log("all segs ", listOfSegments);
+          console.log("all segs ", listOfSegments);
 
-        // let segs = [];
+          for (var i = 0; i < listOfSegments.length; i++) {
+            const segmentEfforts = `https://www.strava.com/api/v3/segment_efforts?segment_id=${listOfSegments[i].id}&access_token=`;
+            const segmentEffortsCall = await fetch(
+              segmentEfforts + accessToken
+            );
+            const segmentEffortData = await segmentEffortsCall.json();
 
-        for (var i = 0; i < listOfSegments.length; i++) {
-          const segmentEfforts = `https://www.strava.com/api/v3/segment_efforts?segment_id=${listOfSegments[i].id}&access_token=`;
-          const segmentEffortsCall = await fetch(segmentEfforts + accessToken);
-          const segmentEffortData = await segmentEffortsCall.json();
+            const getSegmentEfforts = `https://www.strava.com/api/v3/segments/${listOfSegments[i].id}?access_token=`;
+            const getSegmentEffortsCall = await fetch(
+              getSegmentEfforts + accessToken
+            );
+            const getSegmentEffortData = await getSegmentEffortsCall.json();
+            const athleteStats = getSegmentEffortData.athlete_segment_stats;
+            const komStats = getSegmentEffortData.xoms;
+            const mapStats = getSegmentEffortData.map;
 
-          const getSegmentEfforts = `https://www.strava.com/api/v3/segments/${listOfSegments[i].id}?access_token=`;
-          const getSegmentEffortsCall = await fetch(
-            getSegmentEfforts + accessToken
-          );
-          const getSegmentEffortData = await getSegmentEffortsCall.json();
-          const athleteStats = getSegmentEffortData.athlete_segment_stats;
-          const komStats = getSegmentEffortData.xoms;
-          const mapStats = getSegmentEffortData.map;
-
-          listOfSegments[i] = {
-            ...listOfSegments[i],
-            ...segmentEffortData[0],
-            athleteStats,
-            komStats,
-            mapStats,
-          };
+            listOfSegments[i] = {
+              ...listOfSegments[i],
+              ...segmentEffortData[0],
+              athleteStats,
+              komStats,
+              mapStats,
+            };
+          }
+          setSegmentData(listOfSegments);
         }
-        setSegmentData(listOfSegments);
       },
     });
     return null;
   };
 
-  //   const CircleBoundary = () => {
-  //     const circleRef = useRef();
-
-  //     useEffect(() => {
-  //       const radius = circleRef.current.getRadius();
-  //       console.log("radius bounds", circleRef.current.getBounds());
-  //     }, []);
-
-  //     return <Circle ref={circleRef} center={center} radius={1000} />;
-  //   };
-  //   console.log("bounds ", this.refs.map.leafletElement.getBounds);
   return (
-    <div className={classes.root}>
+    <React.Fragment>
       <CssBaseline />
-      <AppBar
-        position="absolute"
-        className={clsx(classes.appBar, open && classes.appBarShift)}
-      >
-        <Toolbar className={classes.toolbar}>
-          <IconButton
-            edge="start"
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            className={clsx(
-              classes.menuButton,
-              open && classes.menuButtonHidden
+      <Container maxWidth="lg">
+        <Header
+          title="KOMBattr"
+          sections={sections}
+          clickHandler={clickHandler}
+          authCode={authCode}
+          athlete={athleteInfo}
+        />
+        <main>
+          {/* <Paper className={classes.mainMapContainer}> */}
+          <MapContainer
+            className={classes.mainMapContainer}
+            center={[38.83388, -77.43038]}
+            zoom={13}
+          >
+            <TileLayer
+              attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            <MyComponent />
+            {/* <CircleBoundary /> */}
+            {location.loaded && !location.errors && (
+              <Marker position={[38.83388, -77.43038]}></Marker>
             )}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography
-            component="h1"
-            variant="h6"
-            color="inherit"
-            noWrap
-            className={classes.title}
-          >
-            Dashboard
-          </Typography>
-          {!authCode && (
-            <Button variant="contained" color="primary" onClick={clickHandler}>
-              Login VIa Strava
-            </Button>
+          </MapContainer>
+          {/* </Paper> */}
+
+          {segmentData.length === 0 && (
+            <>
+              <Typography
+                variant="h6"
+                align="center"
+                gutterBottom
+              >{`Signin, Scroll and Zoom around the map! Then click on a spot to see nearby Segments!`}</Typography>
+              <Divider />
+            </>
           )}
-        </Toolbar>
-      </AppBar>
-      <Drawer
-        variant="permanent"
-        classes={{
-          paper: clsx(classes.drawerPaper, !open && classes.drawerPaperClose),
-        }}
-        open={open}
-      >
-        <div className={classes.toolbarIcon}>
-          <IconButton onClick={handleDrawerClose}>
-            <ChevronLeftIcon />
-          </IconButton>
-        </div>
-        <Divider />
-        <List>{mainListItems}</List>
-        <Divider />
-        <List>{secondaryListItems}</List>
-      </Drawer>
-      <main className={classes.content}>
-        <div className={classes.appBarSpacer} />
 
-        <MapContainer center={[38.83388, -77.43038]} zoom={13}>
-          <TileLayer
-            attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          <MyComponent />
-          {/* <CircleBoundary /> */}
-          {location.loaded && !location.errors && (
-            <Marker position={[38.83388, -77.43038]}></Marker>
-          )}
-        </MapContainer>
-
-        <div style={{ display: "flex", flexWrap: "wrap" }}>
-          {!!segmentData.length &&
-            segmentData.map((seg) => <SegmentCard segmentData={seg} />)}
-        </div>
-
-        <Container maxWidth="lg" className={classes.container}>
-          <Grid container spacing={3}>
-            <Grid item xs={12}>
-              <Paper className={classes.paper}>
-                <Activities activities={activities} />
-              </Paper>
+          <Grid container spacing={5} className={classes.mainGrid}>
+            {/* <Main title="From the firehose" posts={posts} /> */}
+            <Grid container xs={12} md={8} spacing={4}>
+              {!!segmentData.length &&
+                segmentData.map((seg) => (
+                  <SegmentCard
+                    // className={classes.cardTheme}
+                    segmentData={seg}
+                  />
+                ))}
             </Grid>
+            {!!activities.length && (
+              <Sidebar
+                title={sidebar.title}
+                description={sidebar.description}
+                archives={sidebar.archives}
+                social={sidebar.social}
+                activities={activities}
+              />
+            )}
           </Grid>
-          <Box pt={4}>
-            <Copyright />
-          </Box>
-        </Container>
-      </main>
-    </div>
+        </main>
+      </Container>
+      <Footer title="Kombattr" description="Battle those KOMs!" />
+    </React.Fragment>
   );
 }
