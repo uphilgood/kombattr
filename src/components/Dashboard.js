@@ -192,7 +192,11 @@ export default function Dashboard({ acessToken }) {
     const callActivities = `https://www.strava.com/api/v3/athlete/activities?per_page=10&access_token=`;
     fetch(callActivities + access)
       .then((res) => res.json())
-      .then((data) => setActivities(data))
+      .then((data) => {
+        if (!!data?.errors.length)
+          alert(`${data.message} - Please try again in 15 mins`);
+        setActivities(data);
+      })
       .catch((e) => console.log(e));
   }, []);
 
@@ -255,6 +259,11 @@ export default function Dashboard({ acessToken }) {
           const segments = await fetch(callSegments + accessToken);
 
           const segmentData = await segments.json();
+
+          console.log("segment data", segmentData);
+
+          if (!!segmentData?.errors.length)
+            alert(`${segmentData.message} - Please try again in 15 mins`);
 
           const listOfSegments = segmentData.segments;
 
