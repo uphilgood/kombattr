@@ -193,7 +193,7 @@ export default function Dashboard({ acessToken }) {
     fetch(callActivities + access)
       .then((res) => res.json())
       .then((data) => {
-        if (!!data?.errors.length)
+        if (!!data?.errors?.length)
           alert(`${data.message} - Please try again in 15 mins`);
         setActivities(data);
       })
@@ -260,9 +260,7 @@ export default function Dashboard({ acessToken }) {
 
           const segmentData = await segments.json();
 
-          console.log("segment data", segmentData);
-
-          if (!!segmentData?.errors.length)
+          if (!!segmentData?.errors?.length)
             alert(`${segmentData.message} - Please try again in 15 mins`);
 
           const listOfSegments = segmentData.segments;
