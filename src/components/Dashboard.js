@@ -14,6 +14,7 @@ import Header from "./Header";
 import Sidebar from "./Sidebar";
 import Footer from "./Footer";
 import Divider from "@material-ui/core/Divider";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 const drawerWidth = 240;
 
@@ -156,6 +157,7 @@ export default function Dashboard({ acessToken }) {
   const [accessToken, setAccessToken] = useState("");
   const [segmentData, setSegmentData] = useState([]);
   const [athleteInfo, setAthleteInfo] = useState("");
+  const [segmentLoading, setSegmentLoading] = useState(false);
   const clientId = process.env.REACT_APP_CLIENT_ID;
   const clientSecret = process.env.REACT_APP_CLIENT_SECRET;
   const location = useGeoLocation();
@@ -221,6 +223,7 @@ export default function Dashboard({ acessToken }) {
     const map = useMapEvents({
       click: async () => {
         if (authCode) {
+          setSegmentLoading(true);
           const bounds = map.getBounds();
           console.log("location found:", bounds);
           const mapBounds = [
@@ -262,7 +265,10 @@ export default function Dashboard({ acessToken }) {
               mapStats,
             };
           }
+          setSegmentLoading(false);
           setSegmentData(listOfSegments);
+        } else {
+          alert("Please signin with Strava first to see segments");
         }
       },
     });
@@ -299,7 +305,7 @@ export default function Dashboard({ acessToken }) {
           </MapContainer>
           {/* </Paper> */}
 
-          {segmentData.length === 0 && (
+          {segmentData.length === 0 && !authCode && (
             <>
               <Typography
                 variant="h6"
@@ -308,6 +314,12 @@ export default function Dashboard({ acessToken }) {
               >{`Signin, Scroll and Zoom around the map! Then click on a spot to see nearby Segments!`}</Typography>
               <Divider />
             </>
+          )}
+
+          {segmentLoading && (
+            <div style={{ display: "flex", alignContent: "center" }}>
+              <CircularProgress />
+            </div>
           )}
 
           <Grid container spacing={5} className={classes.mainGrid}>
