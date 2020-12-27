@@ -259,11 +259,11 @@ export default function Dashboard({ acessToken }) {
           const listOfSegments = segmentData.segments;
 
           for (var i = 0; i < listOfSegments.length; i++) {
-            // const segmentEfforts = `https://www.strava.com/api/v3/segment_efforts?segment_id=${listOfSegments[i].id}&access_token=`;
-            // const segmentEffortsCall = await fetch(
-            //   segmentEfforts + accessToken
-            // );
-            // const segmentEffortData = await segmentEffortsCall.json();
+            const segmentEfforts = `https://www.strava.com/api/v3/segment_efforts?segment_id=${listOfSegments[i].id}&access_token=`;
+            const segmentEffortsCall = await fetch(
+              segmentEfforts + accessToken
+            );
+            const segmentEffortData = await segmentEffortsCall.json();
 
             const getSegmentEfforts = `https://www.strava.com/api/v3/segments/${listOfSegments[i].id}?access_token=`;
             const getSegmentEffortsCall = await fetch(
@@ -278,6 +278,7 @@ export default function Dashboard({ acessToken }) {
 
             listOfSegments[i] = {
               ...listOfSegments[i],
+              ...segmentEffortData[0],
               athleteStats,
               komStats,
               segPolyline,
