@@ -42,8 +42,6 @@ const SegmentCard = ({ segmentData }) => {
     name,
   } = segmentData;
 
-  console.log("segment color", backgroundColor);
-
   const stats = [
     { type: "Current KOM", value: komStats.kom },
     { type: "Current QOM", value: komStats.qom },
@@ -69,12 +67,25 @@ const SegmentCard = ({ segmentData }) => {
               />
             </Hidden>
             <CardContent>
-              <Avatar style={{ backgroundColor: backgroundColor }}>
-                {name.split("")[0]}
-              </Avatar>
-              <Typography component="h2" variant="h5">
-                {name}
-              </Typography>
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  alignItems: "center",
+                  alignContent: "space-evenly",
+                }}
+              >
+                <Avatar style={{ backgroundColor: backgroundColor }}>
+                  {name.split("")[0]}
+                </Avatar>
+                <Typography
+                  style={{ marginLeft: "5px" }}
+                  component="h2"
+                  variant="h5"
+                >
+                  {name}
+                </Typography>
+              </div>
               {kom_rank && (
                 <div style={{ display: "flex" }}>
                   <StarRateIcon />

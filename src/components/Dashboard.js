@@ -21,9 +21,21 @@ import Sidebar from "./Sidebar";
 import Footer from "./Footer";
 import Divider from "@material-ui/core/Divider";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import { getRandomColor } from "../utlis/getRandomColor";
 
 const drawerWidth = 240;
+
+const colorMap = [
+  "#BBEA2A",
+  "#AD88E2",
+  "#AA36A8",
+  "#97F0E2",
+  "#48CE74",
+  "#63CAF4",
+  "#C3A9F0",
+  "#BE6273",
+  "#11BA80",
+  "#34EFC1",
+];
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -247,11 +259,11 @@ export default function Dashboard({ acessToken }) {
           const listOfSegments = segmentData.segments;
 
           for (var i = 0; i < listOfSegments.length; i++) {
-            const segmentEfforts = `https://www.strava.com/api/v3/segment_efforts?segment_id=${listOfSegments[i].id}&access_token=`;
-            const segmentEffortsCall = await fetch(
-              segmentEfforts + accessToken
-            );
-            const segmentEffortData = await segmentEffortsCall.json();
+            // const segmentEfforts = `https://www.strava.com/api/v3/segment_efforts?segment_id=${listOfSegments[i].id}&access_token=`;
+            // const segmentEffortsCall = await fetch(
+            //   segmentEfforts + accessToken
+            // );
+            // const segmentEffortData = await segmentEffortsCall.json();
 
             const getSegmentEfforts = `https://www.strava.com/api/v3/segments/${listOfSegments[i].id}?access_token=`;
             const getSegmentEffortsCall = await fetch(
@@ -266,15 +278,13 @@ export default function Dashboard({ acessToken }) {
 
             listOfSegments[i] = {
               ...listOfSegments[i],
-              ...segmentEffortData[0],
               athleteStats,
               komStats,
               segPolyline,
-              backgroundColor: getRandomColor(),
+              backgroundColor: colorMap[i],
             };
           }
           setSegmentLoading(false);
-          console.log("list of segments", listOfSegments);
           setSegmentData(listOfSegments);
         } else {
           alert("Please signin with Strava first to see segments");
@@ -307,16 +317,13 @@ export default function Dashboard({ acessToken }) {
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             {!!segmentData.length &&
-              segmentData.map((seg) => {
-                console.log("polyline color", seg.backgroundColor);
-                return (
-                  <Polyline
-                    color={seg.backgroundColor}
-                    weight={4}
-                    positions={seg?.segPolyline || []}
-                  />
-                );
-              })}
+              segmentData.map((seg) => (
+                <Polyline
+                  color={seg.backgroundColor}
+                  weight={4}
+                  positions={seg?.segPolyline || []}
+                />
+              ))}
             <MyComponent />
             {/* <CircleBoundary /> */}
             {location.loaded && !location.errors && (
