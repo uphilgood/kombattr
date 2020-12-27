@@ -11,6 +11,7 @@ import Hidden from "@material-ui/core/Hidden";
 import StarRateIcon from "@material-ui/icons/StarRate";
 import { getStandardTime } from "../utlis/getStandardTime";
 import { getStandardDistance } from "../utlis/getStandardDistance";
+import Avatar from "@material-ui/core/Avatar";
 
 const useStyles = makeStyles({
   card: {
@@ -37,10 +38,11 @@ const SegmentCard = ({ segmentData }) => {
     kom_rank,
     // mapStats,
     // starred,
+    backgroundColor,
     name,
   } = segmentData;
 
-  console.log("segment data", segmentData);
+  console.log("segment color", backgroundColor);
 
   const stats = [
     { type: "Current KOM", value: komStats.kom },
@@ -67,6 +69,9 @@ const SegmentCard = ({ segmentData }) => {
               />
             </Hidden>
             <CardContent>
+              <Avatar style={{ backgroundColor: backgroundColor }}>
+                {name.split("")[0]}
+              </Avatar>
               <Typography component="h2" variant="h5">
                 {name}
               </Typography>

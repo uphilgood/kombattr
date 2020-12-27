@@ -4,7 +4,13 @@ import Grid from "@material-ui/core/Grid";
 import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import React, { useEffect, useState, useCallback } from "react";
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  useMapEvents,
+  Polyline,
+} from "react-leaflet";
 import useGeoLocation from "../utlis/useGeoLocation";
 import SegmentCard from "./SegmentCard";
 import GitHubIcon from "@material-ui/icons/GitHub";
@@ -15,6 +21,7 @@ import Sidebar from "./Sidebar";
 import Footer from "./Footer";
 import Divider from "@material-ui/core/Divider";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import { getRandomColor } from "../utlis/getRandomColor";
 
 const drawerWidth = 240;
 
@@ -161,6 +168,7 @@ export default function Dashboard({ acessToken }) {
   const clientId = process.env.REACT_APP_CLIENT_ID;
   const clientSecret = process.env.REACT_APP_CLIENT_SECRET;
   const location = useGeoLocation();
+  const polyline = require("google-polyline");
 
   const clickHandler = () => {
     window.location.replace(
@@ -225,7 +233,6 @@ export default function Dashboard({ acessToken }) {
         if (authCode) {
           setSegmentLoading(true);
           const bounds = map.getBounds();
-          console.log("location found:", bounds);
           const mapBounds = [
             bounds._southWest.lat,
             bounds._southWest.lng,
@@ -238,8 +245,6 @@ export default function Dashboard({ acessToken }) {
           const segmentData = await segments.json();
 
           const listOfSegments = segmentData.segments;
-
-          console.log("all segs ", listOfSegments);
 
           for (var i = 0; i < listOfSegments.length; i++) {
             const segmentEfforts = `https://www.strava.com/api/v3/segment_efforts?segment_id=${listOfSegments[i].id}&access_token=`;
@@ -257,15 +262,19 @@ export default function Dashboard({ acessToken }) {
             const komStats = getSegmentEffortData.xoms;
             const mapStats = getSegmentEffortData.map;
 
+            const segPolyline = polyline.decode(mapStats.polyline);
+
             listOfSegments[i] = {
               ...listOfSegments[i],
               ...segmentEffortData[0],
               athleteStats,
               komStats,
-              mapStats,
+              segPolyline,
+              backgroundColor: getRandomColor(),
             };
           }
           setSegmentLoading(false);
+          console.log("list of segments", listOfSegments);
           setSegmentData(listOfSegments);
         } else {
           alert("Please signin with Strava first to see segments");
@@ -297,6 +306,17 @@ export default function Dashboard({ acessToken }) {
               attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
+            {!!segmentData.length &&
+              segmentData.map((seg) => {
+                console.log("polyline color", seg.backgroundColor);
+                return (
+                  <Polyline
+                    color={seg.backgroundColor}
+                    weight={4}
+                    positions={seg?.segPolyline || []}
+                  />
+                );
+              })}
             <MyComponent />
             {/* <CircleBoundary /> */}
             {location.loaded && !location.errors && (
